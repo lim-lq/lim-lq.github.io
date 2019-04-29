@@ -6,16 +6,16 @@
   <meta name="author" content="Levi.li 360760945@qq.com">
   
   
-  <title>归档 | Lim</title>
+  <title>使用supervisor运行flask出现too many open files的排查 | Lim</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
   
-    <meta name="keywords" content="Linux, python, DevOps">
+    <meta name="keywords" content="Linux,supervisor,">
   
 
   
-  <meta name="description" content="Lim 随笔">
+  <meta name="description" content="背景介绍服务期上部署了flask应用，采用supervisor+gunicorn+flask 的架构，之前一直使用默认的sync作为gunicorn的worker class，改用gevent之后，不久便出现too many open files的错误.问题排查出现这个问题，首先想到的是修改/etc/security/limits.conf12root hard nofile 65535root soft nofile 65535然后手动杀掉supervisor进程，再起起来，然后查看supervisord进程的limits文件">
 
   
 
@@ -42,7 +42,7 @@
     welcome: {"enable":false,"interval":30},
     start_time: "2019-04-23",
     passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
-    is_post: false,
+    is_post: true,
     lock: false,
     author: "Lim",
     share: {"twitter":false,"facebook":false,"weibo":true,"qq":true,"wechat":true},
@@ -160,37 +160,80 @@
 </nav>
 <div id="site-process"></div>
     <main>
-      <div class="timeline">
-  <h2 class="timeline-title">归档: 4篇</h2>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2019-04-24 10:20:55
+    </span>
+    
+      <span>
+        | <a href="/categories/Linux/"><i class="fa fa-bookmark"></i>Linux</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    使用supervisor运行flask出现too many open files的排查
+  </h1>
   
-    
-      <h3 class="timeline-subtitle">2019</h3>
-    
-    <div class="timeline-item">
-      <time>2019-04-28 17:04:52</time>
-      <a target="_self" href="/passages/使用pyinstaller将flask应用打包/">使用pyinstaller将flask应用打包</a>
-    </div>
+  <article class="passage-article">
+    <p></p>
+<h3 id="背景介绍-1"><a href="#背景介绍-1" class="headerlink" title="背景介绍"></a>背景介绍</h3><p>服务期上部署了flask应用，采用supervisor+gunicorn+flask 的架构，之前一直使用默认的sync作为gunicorn的worker class，<br>改用gevent之后，不久便出现too many open files的错误.</p>
+<h3 id="问题排查-1"><a href="#问题排查-1" class="headerlink" title="问题排查"></a>问题排查</h3><p>出现这个问题，首先想到的是修改/etc/security/limits.conf<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root hard nofile 65535</span><br><span class="line">root soft nofile 65535</span><br></pre></td></tr></table></figure></p>
+<p>然后手动杀掉supervisor进程，再起起来，然后查看supervisord进程的limits文件<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cat /proc/xxx/limits</span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line">Max open files            1024                 4096                 files</span><br></pre></td></tr></table></figure></p>
+<p>What?, 修改没有生效.我再看了下<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ulimit -n</span></span><br><span class="line"><span class="comment">#输出结果</span></span><br><span class="line">65535</span><br></pre></td></tr></table></figure></p>
+<p>这表示系统的值已经改了，但是对应的supervisor程序的值没有修改到，这是查看系统日志：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Oct 31 11:21:23 systemd[1]: supervisor.service: Service hold-off time over, scheduling restart.</span><br><span class="line">Oct 31 11:21:23 systemd[1]: Stopped Supervisor process control system <span class="keyword">for</span> UNIX.</span><br><span class="line">Oct 31 11:21:23 systemd[1]: Started Supervisor process control system <span class="keyword">for</span> UNIX.</span><br><span class="line">Oct 31 11:21:23 supervisord[13133]: 2018-10-31 11:21:23,149 CRIT Supervisor running as root (no user <span class="keyword">in</span> config file)</span><br><span class="line">Oct 31 11:21:23 supervisord[13133]: 2018-10-31 11:21:23,149 WARN Included extra file <span class="string">"/etc/supervisor/conf.d/flow.conf"</span> during parsing</span><br><span class="line">Oct 31 11:21:23 supervisord[13133]: Unlinking stale socket /var/run/supervisor.sock</span><br><span class="line">Oct 31 11:21:23 supervisord[13133]: 2018-10-31 11:21:23,455 INFO RPC interface <span class="string">'supervisor'</span> initialized</span><br><span class="line">Oct 31 11:21:23 supervisord[13133]: 2018-10-31 11:21:23,455 CRIT Server <span class="string">'unix_http_server'</span> running without any HTTP authentication checking</span><br><span class="line">Oct 31 11:21:23 supervisord[13133]: 2018-10-31 11:21:23,456 INFO supervisord started with pid 13133</span><br><span class="line">Oct 31 11:21:24 supervisord[13133]: 2018-10-31 11:21:24,458 INFO spawned: <span class="string">'flow'</span> with pid 13136</span><br><span class="line">Oct 31 11:21:24 supervisord[13133]: 2018-10-31 11:21:24,642 INFO success: flow entered RUNNING state, process has stayed up <span class="keyword">for</span> &gt; than 0 seconds (startsecs)</span><br></pre></td></tr></table></figure></p>
+<p>从上面的日志内容可以看到，systemd这个进程在检测supervisor，所以搞了半天，启动supervisor的是systemd，而不是我手动启动的，systemd的守护文件在/etc/systemd/system/multi-user.target.wants目录下。<br>可以删掉supervisor的配置，也可以暂时停止supervisor的守护.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop supervisor.service</span><br></pre></td></tr></table></figure></p>
+<p>然后再手动重启supervisor，open files的值就生效了。</p>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#背景介绍-1"><span class="toc-text">背景介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#问题排查-1"><span class="toc-text">问题排查</span></a></li></ol>
+  </div>
+</aside>
   
-    
-    <div class="timeline-item">
-      <time>2019-04-24 10:20:55</time>
-      <a target="_self" href="/passages/使用supervisor运行flask出现too-many-open-files的排查/">使用supervisor运行flask出现too many open files的排查</a>
-    </div>
+    <aside class="passage-copyright">
+      <div>本文作者: Lim</div>
+      
+        <div>
+          原文链接: 
+          <a href target="_blank">https://lim-lq.github.io/passages/使用supervisor运行flask出现too-many-open-files的排查/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
   
-    
-    <div class="timeline-item">
-      <time>2019-04-23 17:34:09</time>
-      <a target="_self" href="/passages/ffmpeg使用记录/">ffmpeg使用记录</a>
-    </div>
   
+    <div class="passage-tags">
+     
+      <a href="/tags/supervisor/"><i class="fa fa-tags"></i>supervisor</a>
     
-    <div class="timeline-item">
-      <time>2019-04-17 17:54:24</time>
-      <a target="_self" href="/passages/celery基本操作/">celery基本操作</a>
     </div>
   
 </div>
+
     </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
     
     <div class="site-footer-wrapper">
   <footer class="site-footer">
@@ -265,19 +308,19 @@
 
 <div class="bottom-bar">
   <div class="bottom-bar-left">
-    <a href="javascript:void(0);" data-enable="false">
+    <a href="/passages/使用pyinstaller将flask应用打包/" data-enable="true">
       <i class="fa fa-arrow-left"></i>
     </a>
-    <a href="javascript:void(0);" data-enable="false">
+    <a href="/passages/ffmpeg使用记录/" data-enable="true">
       <i class="fa fa-arrow-right"></i>
     </a>
   </div>
   <div class="bottom-bar-right">
-    <a href="javascript:void(0);" data-enable="false" id="site-toc-show-btn">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
       <i class="fa fa-bars"></i>
     </a>
     
-      <a href="javascript:void(0);" data-enable="false">
+      <a href="#site-comment" data-enable="true">
         <i class="fa fa-commenting"></i>
       </a>
     

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="Levi.li 360760945@qq.com">
+  
+  
+  <title>使用pyinstaller将flask应用打包 | Lim</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="python,flask,pyinstaller,">
+  
+
+  
+  <meta name="description" content="Lim 随笔">
+
+  
+
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+  
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"7LfNusmtcQwBOgx2LSOqRnah-gzGzoHsz","appkey":"bmMQLwebTwjoV7czKH3gtrM5","comment":true,"count":true},
+    welcome: {"enable":false,"interval":30},
+    start_time: "2019-04-23",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Lim",
+    share: {"twitter":false,"facebook":false,"weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  <script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+  
+</head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">Lim</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | Inner Peace</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/lim-lq/" target="_blank" id="site-github">
+          <i class="fa fa-github"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2019-04-28 17:04:52
+    </span>
+    
+      <span>
+        | <a href="/categories/python/"><i class="fa fa-bookmark"></i>python</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    使用pyinstaller将flask应用打包
+  </h1>
+  
+  <article class="passage-article">
+    <h3 id="pyinstaller"><a href="#pyinstaller" class="headerlink" title="pyinstaller"></a>pyinstaller</h3><p>用户将python程序打包成各个平台可直接运行的程序，也可以算作是对代码加密的一种方式。pyinstaller的安装及使用方式请参考<a href="https://pyinstaller.readthedocs.io/en/stable/" target="_blank" rel="noopener">官网</a>。</p>
+<p><code>注：该文章的系统环境是ubuntu</code></p>
+<h3 id="将flask应用打包"><a href="#将flask应用打包" class="headerlink" title="将flask应用打包"></a>将flask应用打包</h3><h5 id="项目结构"><a href="#项目结构" class="headerlink" title="项目结构"></a>项目结构</h5><p>这是我开发的一个项目，并且已经成功打包并上线运行<br><img src="http://pqeo2c3ox.bkt.clouddn.com/images/python_flask_pyinstaller_0001.png" alt></p>
+<ul>
+<li><code>api</code> 所有的代码都在里面</li>
+<li><code>app.py</code>只有一行代码，<code>from api import create_app</code></li>
+</ul>
+<h5 id="开始打包"><a href="#开始打包" class="headerlink" title="开始打包"></a>开始打包</h5><p>下面我们来将该项目打包<code>pyinstaller -F app.py -name app</code>, 通过这个命令，我们就能将整个项目打包成一个名为app的bin文件。直接运行<code>./app</code>，你会发现程序没有运行，因为app.py里面只是单纯的引入了app模块，如果你想通过<code>flask run</code>来执行的话，抱歉，app是个bin文件，不是python模块，会提示找不到app的，简单的解决办法就是在<code>app.py</code>文件中添加以下代码.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> api <span class="keyword">import</span> create_app</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    app = create_app()</span><br><span class="line">    app.run()</span><br></pre></td></tr></table></figure></p>
+<p>然后在执行打包命令<code>pyinstaller -F app.py -name app</code>，这个时候我们的app就可以直接运行了<code>./app</code>，想要在启动的时候指定端口，主机名等等的参数，使用<a href="https://click.palletsprojects.com/en/7.x/" target="_blank" rel="noopener">click</a>.</p>
+<h5 id="使用gunicorn"><a href="#使用gunicorn" class="headerlink" title="使用gunicorn"></a>使用gunicorn</h5><p>总所周知，<code>flask</code>使用的是<a href="http://werkzeug.palletsprojects.com/en/0.15.x/" target="_blank" rel="noopener">Werkzeug</a>来作为它的<code>WSGI server</code>，但是性能很一般,生产环境一般会使用其他的<code>WSGI server</code>, 网上查到有以下<code>WSGI server</code>:</p>
+<ul>
+<li><a href="https://gunicorn.org/" target="_blank" rel="noopener">Gunicorn</a> 独角兽，从<code>Ruby</code>的<code>Unicorn</code>移植过来的。</li>
+<li><a href="https://uwsgi-docs.readthedocs.io/en/latest/" target="_blank" rel="noopener">uWSGI</a> 比较全能的一个<code>WSGI server</code>。</li>
+<li><a href="https://github.com/GrahamDumpleton/mod_wsgi" target="_blank" rel="noopener">mod_wsgi</a> 这个包提供了一个<code>Apache</code>模块，并实现了与<code>wsgi</code>兼容的接口，可以让python程序运行在<code>Apache web server</code>之上。</li>
+<li><a href="https://github.com/cherrypy/cherrypy" target="_blank" rel="noopener">CherryPy</a> <code>CherryPy</code>是<code>Python</code>的一个<code>HTTP Framework</code>,然后它也有<code>WSGI server</code>。</li>
+</ul>
+<p>可能还有其他的一些<code>WSGI server</code>，对于这几种，哪个好，我也不知道，我只对于<code>gunicorn</code>熟悉，那么要使用<code>gunicorn</code>，<code>app.py</code>需添加以下代码:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> gunicorn.app.base</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">StandaloneApplication</span><span class="params">(gunicorn.app.base.BaseApplication)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    Custom application</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">init</span><span class="params">(self, parser, opts, args)</span>:</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, app, options=None)</span>:</span></span><br><span class="line">        self.options = options <span class="keyword">or</span> &#123;&#125;</span><br><span class="line">        self.application = app</span><br><span class="line">        super(StandaloneApplication, self).__init__()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">load_config</span><span class="params">(self)</span>:</span></span><br><span class="line">        config = dict([(key, value) <span class="keyword">for</span> key, value <span class="keyword">in</span> iteritems(self.options)</span><br><span class="line">                       <span class="keyword">if</span> key <span class="keyword">in</span> self.cfg.settings <span class="keyword">and</span> value <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>])</span><br><span class="line">        <span class="keyword">for</span> key, value <span class="keyword">in</span> iteritems(config):</span><br><span class="line">            self.cfg.set(key.lower(), value)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">load</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> self.application</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    options = &#123;</span><br><span class="line">        <span class="string">"bind"</span>: <span class="string">"127.0.0.1:8000"</span></span><br><span class="line">    &#125;</span><br><span class="line">    StandaloneApplication(app, options=options).run()</span><br></pre></td></tr></table></figure></p>
+<p>接下来再执行<code>pyinstaller -F app.py -name app</code>，<code>./app</code>就会使用<code>gunicorn</code>来运行服务了，对于<code>gunicorn</code>的参数，依然使用<code>click</code>来搞定。然而，当你开开心心运行程序的时候，突然报错了：<br><img src="http://pqeo2c3ox.bkt.clouddn.com/python_flask_pyinstaller_0002.png" alt><br><code>gunicorn.glogging</code>是啥？它为什么找不到？我要去哪里找它？这是<code>gunicorn</code>的日志包，但是<code>pyinstaller</code>在打包的时候没有将它一起打入进去，所以运行是找不到，这里我们需要在打包的时候加个参数:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pyinstaller -F app.py --name app --hidden-import=gunicorn.glogging</span><br></pre></td></tr></table></figure></p>
+<p>这是啥意思呢，因为<code>gunicorn</code>自身的代码，并没有直接引入这个包，所以需要手动添加，<code>--hidden-import</code>参数含义请翻阅官方文档。接下来运行<code>./app</code>，还是报错，为什么路途就这么不顺呢？<br><img src="http://pqeo2c3ox.bkt.clouddn.com/python_flask_pyinstaller_0003.png" alt><br>这个包是<code>gunicorn</code>默认的工作类，<code>pyinstaller</code>在打包的时候也没有将它一起打入进去</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pyinstaller -F app.py --name app \ </span><br><span class="line">    --hidden-import=gunicorn.glogging \</span><br><span class="line">    --hidden-import=gunicorn.workers.sync</span><br></pre></td></tr></table></figure>
+<p>再次执行<code>./app</code>，程序就完美使用<code>gunicorn</code>来运行了。如果你想使用其他的<code>worker_class</code>，请在打包的时候传入对应的包名,如：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">pyinstaller -F app.py --name app \ </span><br><span class="line">    --hidden-import=gunicorn.glogging \</span><br><span class="line">    --hidden-import=gunicorn.workers.sync \</span><br><span class="line">    --hidden-import=gunicorn.workers.ggevent</span><br></pre></td></tr></table></figure></p>
+<h3 id="添加命令行工具"><a href="#添加命令行工具" class="headerlink" title="添加命令行工具"></a>添加命令行工具</h3><h5 id="像flask一样"><a href="#像flask一样" class="headerlink" title="像flask一样"></a>像flask一样</h5><p>从<code>flask 0.11</code>版本开始，就内建了一个命令行工具<code>flask</code>，而我们在开发项目的时候，也会添加一些自定义命令，然后通过<code>flask</code>来执行。为了让我们的打包后的可执行文件能够实现这一功能，修改<code>app.py</code>代码：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    ...</span><br><span class="line">    app.cli()</span><br></pre></td></tr></table></figure></p>
+<p>但是酱紫之后，服务如何来启动呢，我的解决办法是添加一个<code>run</code>命令到<code>app.cli</code>里面，大家如果有更好的方法，还望不吝赐教。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="string">"""运行服务"""</span></span><br><span class="line">    options = &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    StandaloneApplication(app, options=options).run()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    app.cli.add_command(run)</span><br><span class="line">    app.cli()</span><br></pre></td></tr></table></figure></p>
+<p>打包之后，运行<code>./app</code>和<code>./app run</code>，运行十分顺利。</p>
+<h5 id="支持db命令"><a href="#支持db命令" class="headerlink" title="支持db命令"></a>支持db命令</h5><p><code>flask_migrate</code>数据库迁移库是个相当棒的工具，<code>flask</code>命令会自动去添加<code>db</code>命令，我们也可以把它添加到我们的命令中去:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="keyword">from</span> flask_migrate.cli <span class="keyword">import</span> db</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    ...</span><br><span class="line">    app.cli.add_command(db)</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure></p>
+<p>之后当你兴高采烈的运行<code>db</code>命令的时候，又一个拦路虎出现了<br><img src="http://pqeo2c3ox.bkt.clouddn.com/python_flask_pyinstaller_0004.png" alt><br>找不到<code>flask</code>应用，我不是<code>app = create_app()</code>已经创建了么，为啥还要去找<code>FLASK_APP</code>这个环境变量呢，其实不单单是<code>db</code>命令会报这个错，就连我们自己写的命令也可能会报这个错，我们先来查看源代码<code>flask_migrate/cli.py</code>，大概在85行的位置：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="meta">@with_appcontext</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">migrate</span><span class="params">(directory, message, sql, head, splice, branch_label, version_path,</span></span></span><br><span class="line"><span class="function"><span class="params">            rev_id, x_arg)</span>:</span></span><br><span class="line">    <span class="string">"""Autogenerate a new revision file (Alias for 'revision --autogenerate')"""</span></span><br><span class="line">    _migrate(directory, message, sql, head, splice, branch_label, version_path,</span><br><span class="line">             rev_id, x_arg)</span><br></pre></td></tr></table></figure></p>
+<p>这里使用了<code>with_appcontext</code>这个装饰器，它来自于<code>flask/cli.py</code>文件：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">with_appcontext</span><span class="params">(f)</span>:</span></span><br><span class="line"><span class="meta">    @click.pass_context</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">decorator</span><span class="params">(__ctx, *args, **kwargs)</span>:</span></span><br><span class="line">        <span class="keyword">with</span> __ctx.ensure_object(ScriptInfo).load_app().app_context():</span><br><span class="line">            <span class="keyword">return</span> __ctx.invoke(f, *args, **kwargs)</span><br><span class="line">    <span class="keyword">return</span> update_wrapper(decorator, f)</span><br></pre></td></tr></table></figure></p>
+<p>这个装饰器的作用就是让被装饰的函数在<code>app</code>的上下文去执行，<code>__ctx.ensure_object(ScriptInfo).load_app()</code>这个函数就是<code>flask</code>根据<code>FLASK_APP</code>环境变量，或者默认的文件名<code>app.py</code>, <code>wsgi.py</code>，去找到<code>app</code>，所以<code>db</code>使用的<code>app</code>都是它自己去找到位置然后定义。如果使用的是<code>flask.cli.AppGroup</code>来定义自己的命令，那么也是一样的逻辑。所以现在要解决的问题是如何把我们手动创建的<code>app</code>传入进去。很直接的我想到的是<code>current_app</code>，只要把我们的<code>app</code>压入栈就可以了。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># overide.py</span></span><br><span class="line"><span class="keyword">import</span> click</span><br><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> update_wrapper</span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> current_app</span><br><span class="line"><span class="keyword">from</span> flask.cli <span class="keyword">import</span> with_appcontext <span class="keyword">as</span> origin_with_appcontext</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">override_with_appcontext</span><span class="params">(f)</span>:</span></span><br><span class="line"><span class="meta">    @click.pass_context</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">decorator</span><span class="params">(__ctx, *args, **kwargs)</span>:</span></span><br><span class="line">        <span class="keyword">with</span> current_app.app_context():</span><br><span class="line">            <span class="keyword">return</span> __ctx.invoke(f, *args, **kwargs)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> update_wrapper(decorator, f)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># If the app starts up in Pyinstaller binary mode, the bootloader will set sys.frozen attribute.</span></span><br><span class="line"><span class="keyword">if</span> hasattr(sys, <span class="string">"frozen"</span>):</span><br><span class="line">    with_appcontext = override_with_appcontext</span><br><span class="line">    print(<span class="string">"Use override with_appcontext"</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    with_appcontext = origin_with_appcontext</span><br><span class="line">    print(<span class="string">"Use original with_appcontext"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># app.py</span></span><br><span class="line">...</span><br><span class="line">ctx = app.app_context()</span><br><span class="line">ctx.push()</span><br><span class="line">app.cli()</span><br><span class="line">ctx.pop() <span class="comment"># 这里的pop运行不到这里来</span></span><br></pre></td></tr></table></figure></p>
+<p>这里我兼容<code>pyinstaller</code>打包的运行的和常规运行两种，然后在需要上下文的命令函数加上重写后的<code>with_appcontext</code>就可以了，而对于<code>flask_migrate.cli.db</code>，我采用暴力的方式，直接拷贝了它的源代码，然后使用重写的<code>with_appcontext</code>，然后再打包就可以了。</p>
+<h3 id="其他注意点"><a href="#其他注意点" class="headerlink" title="其他注意点"></a>其他注意点</h3><h5 id="非python文件的使用"><a href="#非python文件的使用" class="headerlink" title="非python文件的使用"></a>非python文件的使用</h5><p>如果你代码里面读取了其他文件的内容，那么在打包的时候，需要把这些文件加上，通过<code>--add-data</code>来添加。</p>
+<h5 id="gunicorn使用gevent"><a href="#gunicorn使用gevent" class="headerlink" title="gunicorn使用gevent"></a>gunicorn使用gevent</h5><p><code>gunicorn</code>使用<code>gevent</code>的时候，需要在代码最前面加上<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> gevent <span class="keyword">import</span> monkey</span><br><span class="line">monkey.patch_all(subprocess=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure></p>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#pyinstaller"><span class="toc-text">pyinstaller</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#将flask应用打包"><span class="toc-text">将flask应用打包</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#项目结构"><span class="toc-text">项目结构</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#开始打包"><span class="toc-text">开始打包</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#使用gunicorn"><span class="toc-text">使用gunicorn</span></a></li></ol></li></ol><li class="toc-item toc-level-3"><a class="toc-link" href="#添加命令行工具"><span class="toc-text">添加命令行工具</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#像flask一样"><span class="toc-text">像flask一样</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#支持db命令"><span class="toc-text">支持db命令</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#其他注意点"><span class="toc-text">其他注意点</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#非python文件的使用"><span class="toc-text">非python文件的使用</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#gunicorn使用gevent"><span class="toc-text">gunicorn使用gevent</span></a></li></ol></li>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: Lim</div>
+      
+        <div>
+          原文链接: 
+          <a href target="_blank">https://lim-lq.github.io/passages/使用pyinstaller将flask应用打包/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/flask/"><i class="fa fa-tags"></i>flask</a>
+     
+      <a href="/tags/pyinstaller/"><i class="fa fa-tags"></i>pyinstaller</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">博客推荐</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/" target="_blank">GodBMW</a>
+            </span>
+          
+        </div>
+      
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: 360760945@qq.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      
+        <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+          
+            <div>
+              <img src="/images/alipay.png" alt="支付宝">
+              
+                <p>支付宝</p>
+              
+            </div>
+          
+            <div>
+              <img src="/images/wechat.png" alt="微信">
+              
+                <p>微信</p>
+              
+            </div>
+          
+        </div>
+      
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="javascript:void(0);" data-enable="false">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/使用supervisor运行flask出现too-many-open-files的排查/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    
+      <a href="javascript:void(0);" id="site-reward">
+        <i class="fa fa-thumbs-up"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+  <script async src="https://www.googletagmanager.com/gtag/js?id="></script>
+  <script async>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', '');
+  </script>
+
+
+
+  <script async>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+  </script>
+
+
+
+
+    
+  </body>
+</html>

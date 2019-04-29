@@ -6,16 +6,16 @@
   <meta name="author" content="Levi.li 360760945@qq.com">
   
   
-  <title>celery基本操作 | Lim</title>
+  <title>ffmpeg使用记录 | Lim</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
   
-    <meta name="keywords" content="celery,celery,">
+    <meta name="keywords" content="Linux,ffmpeg,">
   
 
   
-  <meta name="description" content="Celery 基本操作1·配置12# 该配置当task运行时，会把状态改成STARTED，设置成False，状态为PENDINGtask_track_started = True">
+  <meta name="description" content="ffmpeg 视频倒序流程1.视频转图片1234ffmpeg -i video.mp4 -f image2 -q:v -qscale 1 img%06d.jpg# -i 传入视频文件# -f force format, 强制转换格式# -q[:stream_specifier] 或者-qscale 是质量，值越小质量越高,stream_specifier指定流，v表示video，a表示audio">
 
   
 
@@ -164,11 +164,11 @@
   <div class="passage">
   <div class="passage-meta">
     <span>
-      <i class="fa fa-calendar"></i>2019-04-17 17:54:24
+      <i class="fa fa-calendar"></i>2019-04-23 17:34:09
     </span>
     
       <span>
-        | <a href="/categories/celery/"><i class="fa fa-bookmark"></i>celery</a>
+        | <a href="/categories/Linux/"><i class="fa fa-bookmark"></i>Linux</a>
       </span>
     
     
@@ -178,12 +178,19 @@
     
   </div>
   <h1 class="passage-title">
-    celery基本操作
+    ffmpeg使用记录
   </h1>
   
   <article class="passage-article">
-    <h3 id="Celery-基本操作-1"><a href="#Celery-基本操作-1" class="headerlink" title="Celery 基本操作"></a>Celery 基本操作</h3><h4 id="1·配置-1"><a href="#1·配置-1" class="headerlink" title="1·配置"></a>1·配置</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 该配置当task运行时，会把状态改成STARTED，设置成False，状态为PENDING</span></span><br><span class="line">task_track_started = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 任务队列配置</span></span><br><span class="line">broker_url = <span class="string">"pyamqp:/ant:ant@localhost:5672/ant"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 返回队列配置</span></span><br><span class="line">result_backend = <span class="string">"redis://localhost/10"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 一个woker一次去多少个任务</span></span><br><span class="line">worker_prefetch_multiplier = <span class="number">1</span></span><br></pre></td></tr></table></figure>
-<h4 id="2-使用"><a href="#2-使用" class="headerlink" title="2.使用"></a>2.使用</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># XXTask 是一个celery任务</span></span><br><span class="line">task = XXTask.delay()</span><br><span class="line"><span class="comment"># task结果是一个AsynResult实例，task.id是该任务的id，</span></span><br><span class="line"><span class="comment"># 通过一下方式可以根据id获取任务的运行结果</span></span><br><span class="line"><span class="keyword">from</span> celery.result <span class="keyword">import</span> AsyncResult</span><br><span class="line">task_ = AsyncResult(task_id)</span><br><span class="line"><span class="comment"># task.id - 该task的uuid</span></span><br><span class="line"><span class="comment"># task.state - 该task的状态，PENDING: 没有开始, STARTED: 开始了, </span></span><br><span class="line"><span class="comment"># REVOKE: 调用revoke撤销任务, SUCCESS: 运行成功, FAILURE: 运行失败</span></span><br><span class="line"><span class="comment"># task.info/result - 运行成功则是返回纸，如果抛出异常， 则是Exception实例，程序正在运行时</span></span><br><span class="line"><span class="comment"># 值是一个字典数据&#123;"pid": xxxx, "hostname": "celery@xxxx"&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> celery.task.control <span class="keyword">import</span> revoke</span><br><span class="line"><span class="comment"># 该函数可以用SIGTEAM结束task_id对应的任务，同事把task_id对应的任务状态state改成REVOKE</span></span><br><span class="line">revoke(task_id, terminate=<span class="literal">True</span>)</span><br><span class="line"><span class="comment"># 或者task.revoke(terminate=True)</span></span><br></pre></td></tr></table></figure>
+    <h3 id="ffmpeg-视频倒序流程-1"><a href="#ffmpeg-视频倒序流程-1" class="headerlink" title="ffmpeg 视频倒序流程"></a>ffmpeg 视频倒序流程</h3><h5 id="1-视频转图片-1"><a href="#1-视频转图片-1" class="headerlink" title="1.视频转图片"></a>1.视频转图片</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -i video.mp4 -f image2 -q:v -qscale 1 img%03d.jpeg</span><br><span class="line"><span class="comment"># -i 传入视频文件</span></span><br><span class="line"><span class="comment"># -f force format, 强制转换格式</span></span><br><span class="line"><span class="comment"># -q[:stream_specifier] 或者-qscale 是质量，值越小质量越高,stream_specifier指定流，v表示video，a表示audio</span></span><br><span class="line"><span class="comment"># 图片会生成到当前目录</span></span><br></pre></td></tr></table></figure>
+<h5 id="2-图片倒序"><a href="#2-图片倒序" class="headerlink" title="2.图片倒序"></a>2.图片倒序</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x=1; <span class="keyword">for</span> i <span class="keyword">in</span> $(ls -t *jpeg);<span class="keyword">do</span> counter=$(<span class="built_in">printf</span> %03d <span class="variable">$x</span>); mv <span class="string">"<span class="variable">$i</span>"</span> image<span class="string">"<span class="variable">$counter</span>"</span>.jpeg;x=$((<span class="variable">$x</span>+1)); <span class="keyword">done</span></span><br><span class="line"><span class="comment"># 将之前的图片倒序重命名</span></span><br></pre></td></tr></table></figure>
+<h5 id="3-图片生成视频"><a href="#3-图片生成视频" class="headerlink" title="3.图片生成视频"></a>3.图片生成视频</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -f image2 -framerate 15.8 -i image%03d.jpeg -c:v libx264 -pix_fmt yuv420p out.mp4</span><br><span class="line"><span class="comment"># -framerate 图片帧数，通过ffmpeg -i input.mp4的输出结果找到fps</span></span><br><span class="line"><span class="comment"># -c:v 指定视频编码, 通过ffmpeg -i input.mp4的输出结果找到编码</span></span><br><span class="line"><span class="comment"># -pix_fmt: 指定像素格式,通过ffmpeg -i input.mp4的输出结果找到像素格式</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://pqeo2c3ox.bkt.clouddn.com/images/ffmpeg_01_0001.jpeg" alt="参数获取"></p>
+<h5 id="4-提取音频"><a href="#4-提取音频" class="headerlink" title="4.提取音频"></a>4.提取音频</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -i 1.mp4 -vn out.mp3</span><br><span class="line"><span class="comment"># -vn: 表示不要视频流</span></span><br></pre></td></tr></table></figure>
+<h5 id="5-合成视频"><a href="#5-合成视频" class="headerlink" title="5.合成视频"></a>5.合成视频</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -i out.mp4 -i out.mp3 -c copy reverse.mp4</span><br></pre></td></tr></table></figure>
+<h3 id="简单的转码"><a href="#简单的转码" class="headerlink" title="简单的转码"></a>简单的转码</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -i input.m4v -f mp4 out.mp4</span><br><span class="line"><span class="comment"># -f 指定转码格式</span></span><br></pre></td></tr></table></figure>
+<h3 id="将图片添加到视频上"><a href="#将图片添加到视频上" class="headerlink" title="将图片添加到视频上"></a>将图片添加到视频上</h3><h5 id="1-图片从第二秒开始"><a href="#1-图片从第二秒开始" class="headerlink" title="1. 图片从第二秒开始"></a>1. 图片从第二秒开始</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -y -i input.mp4 -i input.png -filter_complex <span class="string">"overlay=x='if(gte(t,2), 10, NAN)' :y='if(gte(t,2), main_h-overlay_h-10, NAN)'"</span> out.mp4</span><br><span class="line"><span class="comment"># -filter_complex: 指定过滤条件</span></span><br><span class="line"><span class="comment"># overlay: 覆盖操作，x，y是起始坐标， gte(t,2)，时间大于等于2秒</span></span><br></pre></td></tr></table></figure>
+<h5 id="2-图片出现在两秒到8秒"><a href="#2-图片出现在两秒到8秒" class="headerlink" title="2. 图片出现在两秒到8秒"></a>2. 图片出现在两秒到8秒</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -y -i input.mp4 -i input.png -filter_complex <span class="string">"overlay=x='if(between(t,2,8), 10, NAN) :y='if(between(t,2,8), main_h-overlay_h-10, NAN)'"</span> out.mp4</span><br></pre></td></tr></table></figure>
   </article>
   <aside class="table-content" id="site-toc">
   <div class="table-content-title">
@@ -191,7 +198,7 @@
     <span>目录</span>
   </div>
   <div class="table-content-main">
-    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Celery-基本操作-1"><span class="toc-text">Celery 基本操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1·配置-1"><span class="toc-text">1·配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-使用"><span class="toc-text">2.使用</span></a></li></ol></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#ffmpeg-视频倒序流程-1"><span class="toc-text">ffmpeg 视频倒序流程</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-视频转图片-1"><span class="toc-text">1.视频转图片</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-图片倒序"><span class="toc-text">2.图片倒序</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-图片生成视频"><span class="toc-text">3.图片生成视频</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-提取音频"><span class="toc-text">4.提取音频</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-合成视频"><span class="toc-text">5.合成视频</span></a></li></ol></li></ol><li class="toc-item toc-level-3"><a class="toc-link" href="#简单的转码"><span class="toc-text">简单的转码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#将图片添加到视频上"><span class="toc-text">将图片添加到视频上</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-图片从第二秒开始"><span class="toc-text">1. 图片从第二秒开始</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-图片出现在两秒到8秒"><span class="toc-text">2. 图片出现在两秒到8秒</span></a></li></ol></li>
   </div>
 </aside>
   
@@ -200,7 +207,7 @@
       
         <div>
           原文链接: 
-          <a href target="_blank">https://lim-lq.github.io/passages/celery基本操作/</a>
+          <a href target="_blank">https://lim-lq.github.io/passages/ffmpeg使用记录/</a>
         </div>
       
       <div>
@@ -211,7 +218,7 @@
   
     <div class="passage-tags">
      
-      <a href="/tags/celery/"><i class="fa fa-tags"></i>celery</a>
+      <a href="/tags/ffmpeg/"><i class="fa fa-tags"></i>ffmpeg</a>
     
     </div>
   
@@ -302,10 +309,10 @@
 
 <div class="bottom-bar">
   <div class="bottom-bar-left">
-    <a href="/passages/ffmpeg使用记录/" data-enable="true">
+    <a href="/passages/使用supervisor运行flask出现too-many-open-files的排查/" data-enable="true">
       <i class="fa fa-arrow-left"></i>
     </a>
-    <a href="javascript:void(0);" data-enable="false">
+    <a href="/passages/celery基本操作/" data-enable="true">
       <i class="fa fa-arrow-right"></i>
     </a>
   </div>

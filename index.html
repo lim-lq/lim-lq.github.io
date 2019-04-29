@@ -167,6 +167,92 @@
         <div class="home-article-inner" data-cover="false">
           <div class="passage-meta">
             <span>
+              <i class="fa fa-calendar"></i>2019-04-28 17:04:52
+            </span>
+            
+              <span>
+                | <a href="/categories/python/"><i class="fa fa-bookmark"></i>python</a>
+              </span>
+            
+            
+              <span>
+                | <i class="fa fa-unlock-alt"></i>UNLOCK
+              </span>
+            
+          </div>
+          <h1 class="home-article-title">
+            <a href="/passages/使用pyinstaller将flask应用打包/">使用pyinstaller将flask应用打包</a>
+          </h1>
+          <div class="home-article-content passage-article">
+            
+              
+            
+          </div>
+          <a class="home-article-read" href="/passages/使用pyinstaller将flask应用打包/">
+            README MORE >>>
+          </a>
+          
+            <div class="passage-tags">
+             
+              <a href="/tags/flask/"><i class="fa fa-tags"></i>flask</a>
+             
+              <a href="/tags/pyinstaller/"><i class="fa fa-tags"></i>pyinstaller</a>
+            
+            </div>
+          
+        </div>
+        
+      </div>
+    </div>
+  
+    <div class="home-article-wrapper clearfix">
+      <div class="home-article" data-cover="false">
+        <div class="home-article-inner" data-cover="false">
+          <div class="passage-meta">
+            <span>
+              <i class="fa fa-calendar"></i>2019-04-24 10:20:55
+            </span>
+            
+              <span>
+                | <a href="/categories/Linux/"><i class="fa fa-bookmark"></i>Linux</a>
+              </span>
+            
+            
+              <span>
+                | <i class="fa fa-unlock-alt"></i>UNLOCK
+              </span>
+            
+          </div>
+          <h1 class="home-article-title">
+            <a href="/passages/使用supervisor运行flask出现too-many-open-files的排查/">使用supervisor运行flask出现too many open files的排查</a>
+          </h1>
+          <div class="home-article-content passage-article">
+            
+              <h3 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h3><p>服务期上部署了flask应用，采用supervisor+gunicorn+flask 的架构，之前一直使用默认的sync作为gunicorn的worker class，<br>改用gevent之后，不久便出现too many open files的错误.</p>
+<h3 id="问题排查"><a href="#问题排查" class="headerlink" title="问题排查"></a>问题排查</h3><p>出现这个问题，首先想到的是修改/etc/security/limits.conf<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root hard nofile 65535</span><br><span class="line">root soft nofile 65535</span><br></pre></td></tr></table></figure></p>
+<p>然后手动杀掉supervisor进程，再起起来，然后查看supervisord进程的limits文件<br>
+            
+          </p></div>
+          <a class="home-article-read" href="/passages/使用supervisor运行flask出现too-many-open-files的排查/">
+            README MORE >>>
+          </a>
+          
+            <div class="passage-tags">
+             
+              <a href="/tags/supervisor/"><i class="fa fa-tags"></i>supervisor</a>
+            
+            </div>
+          
+        </div>
+        
+      </div>
+    </div>
+  
+    <div class="home-article-wrapper clearfix">
+      <div class="home-article" data-cover="false">
+        <div class="home-article-inner" data-cover="false">
+          <div class="passage-meta">
+            <span>
               <i class="fa fa-calendar"></i>2019-04-23 17:34:09
             </span>
             
@@ -181,14 +267,14 @@
             
           </div>
           <h1 class="home-article-title">
-            <a href="/passages/ffmpeg-使用记录/">ffmpeg 使用记录</a>
+            <a href="/passages/ffmpeg使用记录/">ffmpeg使用记录</a>
           </h1>
           <div class="home-article-content passage-article">
             
               <h3 id="ffmpeg-视频倒序流程"><a href="#ffmpeg-视频倒序流程" class="headerlink" title="ffmpeg 视频倒序流程"></a>ffmpeg 视频倒序流程</h3><h5 id="1-视频转图片"><a href="#1-视频转图片" class="headerlink" title="1.视频转图片"></a>1.视频转图片</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -i video.mp4 -f image2 -q:v -qscale 1 img%06d.jpg</span><br><span class="line"><span class="comment"># -i 传入视频文件</span></span><br><span class="line"><span class="comment"># -f force format, 强制转换格式</span></span><br><span class="line"><span class="comment"># -q[:stream_specifier] 或者-qscale 是质量，值越小质量越高,stream_specifier指定流，v表示video，a表示audio</span></span><br></pre></td></tr></table></figure>
             
           </div>
-          <a class="home-article-read" href="/passages/ffmpeg-使用记录/">
+          <a class="home-article-read" href="/passages/ffmpeg使用记录/">
             README MORE >>>
           </a>
           
